@@ -36,3 +36,16 @@ Biểu đồ nhân sự thể hiện nhân viên hiện còn làm việc tích l
 `npm test`: cơ sở dữ liệu SQLite độc lập, kiểm tra đăng nhập, phạm vi dữ liệu, quyền sửa/duyệt, Origin, nghỉ trùng, lưu/import, hợp đồng sai ngày và đăng xuất. `ui-check.mjs`: kiểm tra trình duyệt cục bộ, tìm kiếm, thêm hồ sơ, xuất/nhập Excel, các màn hình và kích thước điện thoại; cần Playwright và Chrome. Kiểm tra WebMCP đăng ký không có môi trường hỗ trợ tại máy này; API điều hướng có feature-detect và vẫn tuân theo vai trò của giao diện.
 
 Thư viện Excel dùng bản 0.20.3 từ nguồn chính thức: https://docs.sheetjs.com/docs/getting-started/installation/nodejs/. Không có dữ liệu cá nhân thật trong mã nguồn.
+
+## Báo cáo nhân sự bằng OpenAI
+
+HR/Admin mở **Báo cáo nhân sự → Tạo báo cáo bằng AI**, chọn tháng, tạo và xem lại hoặc tải `.txt`. Báo cáo lưu bền vững trong DB kèm số liệu nguồn, mô hình, người tạo, thời gian và token sử dụng. Manager/Employee không được tạo hay đọc báo cáo AI toàn công ty, kể cả gọi API trực tiếp. Không thiết lập lịch chạy tự động; nút tạo thực hiện viết báo cáo theo yêu cầu.
+
+Máy chủ gọi Responses API với `store:false` và giới hạn 3.000 token đầu ra, mặc định `gpt-4.1-mini`. Secret `OPENAI_API_KEY` và biến `OPENAI_MODEL` nằm trong cấu hình runtime Sites. Với bản cục bộ, cấp các biến môi trường đó trước `npm run dev`, không ghi khóa vào mã nguồn. Sau khi đổi secret trên Sites cần triển khai phiên bản để áp dụng cấu hình.
+
+Dữ liệu gửi OpenAI chỉ gồm số đếm nhân sự theo phòng ban/chức danh, hợp đồng cần chú ý, công và phép giao tháng, giai đoạn tuyển dụng và giới hạn dữ liệu. Không gửi tên, email, điện thoại, địa chỉ, ngày sinh, lý do nghỉ hoặc lương cá nhân. Đây là bản nháp, HR cần kiểm tra số liệu và khuyến nghị trước khi sử dụng. `store:false` không đồng nghĩa với Zero Data Retention; chính sách xử lý dữ liệu: https://developers.openai.com/api/docs/guides/your-data.
+
+Giới hạn: 10 lần tạo mỗi người/ngày, 30 lần toàn công ty/ngày, ít nhất một phút giữa hai yêu cầu; các lượt thất bại cũng tính vào giới hạn để chống lạm dụng. Thời gian chờ OpenAI tối đa 45 giây. Chi phí trừ vào tài khoản API; cần API key hợp lệ, quyền mô hình và đủ hạn mức/thanh toán. Khóa đã gửi trong chat nên được thu hồi/thay mới trước khi vận hành thật. Tài khoản demo HR/Admin có thể tiêu hạn mức trong phạm vi Site riêng tư, cần loại bỏ khi vận hành.
+
+Kiểm tra bổ sung: `node test-ai.mjs`. Kiểm tra kết nối thực tế: `node test-ai.mjs --live`, nhận khóa qua stdin ẩn, không ghi khóa vào tệp. Tài liệu API: https://developers.openai.com/api/docs/guides/text.
+
