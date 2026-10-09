@@ -1,0 +1,1 @@
+{"name":"nhansu","type":"module","private":true,"scripts":{"dev":"node local.mjs","build":"node build.mjs","test":"node test.mjs","db:generate":"drizzle-kit generate"},"dependencies":{"xlsx":"https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"},"devDependencies":{"drizzle-kit":"0.31.4","drizzle-orm":"0.44.2","esbuild":"0.25.5"}}
