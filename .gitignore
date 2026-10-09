@@ -3,3 +3,8 @@ data/
 dist/
 .sites-runtime/
 *.tar.gz
+public/
+.vercel/
+.env
+.env.*
+!.env.example

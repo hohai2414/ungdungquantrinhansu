@@ -1,5 +1,18 @@
 # Nhân sự · Minh Phát
 
+## Triển khai trên Vercel
+
+Bản build hỗ trợ cả Sites/Cloudflare và Vercel. `vercel.json` đặt Framework là Other (`null`), Build Command `npm run build`, Output Directory `public`. Build tạo `public/index.html`; các `/api/*` chạy qua Vercel Function `api/index.js`, giữ nguyên kiểm tra đăng nhập và quyền phía máy chủ. Không chọn `dist` làm thư mục công khai vì nó chứa mã máy chủ.
+
+Vercel không có binding Cloudflare D1. Bản Vercel dùng Turso/libSQL để lưu dữ liệu bền vững:
+
+1. Tạo cơ sở dữ liệu Turso, lấy URL và auth token. Trong **Vercel → Settings → Environment Variables**, cấu hình `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `OPENAI_API_KEY` và tùy chọn `OPENAI_MODEL=gpt-4.1-mini`. Khóa trên Sites không tự chuyển sang Vercel; không đưa khóa vào GitHub.
+2. Tạo `.env` cục bộ theo `.env.example`, điền URL/token, rồi chạy `node --env-file=.env scripts/migrate-vercel.mjs` để tạo schema. Script áp dụng migration theo thứ tự, kiểm tra checksum, lưu lịch sử và không chạy lại migration đã áp dụng.
+3. Redeploy nhánh `main` trên Vercel. Sau khi có database/schema, `DEMO_MODE=true` sẽ tạo dữ liệu và tài khoản mẫu ở lần gọi API đầu tiên. Nếu chưa có cấu hình DB, giao diện báo thiếu cấu hình thay vì lưu dữ liệu tạm trong `/tmp`.
+4. Khi vận hành thật, dùng DB mới, đặt `DEMO_MODE=false`, chạy migration và cấp Admin đầu tiên; giữ Site/Vercel có cơ chế giới hạn truy cập phù hợp. Dữ liệu đang có trên D1 không tự chuyển sang Turso; đây là hai DB độc lập.
+
+Để thử migration/adapter trước khi cấu hình DB thật: `node test-vercel.mjs`. Tài liệu: https://vercel.com/docs/project-configuration và https://docs.turso.tech/sdk/ts/reference.
+
 Web app tiếng Việt, giao diện trắng/cam #f58220, dữ liệu mẫu 168 hồ sơ. Máy chủ kiểm tra quyền cho mọi API. SQLite khi chạy tại máy; Cloudflare D1 khi triển khai Sites. Không dùng localStorage để lưu dữ liệu nghiệp vụ.
 
 ## Trải nghiệm
